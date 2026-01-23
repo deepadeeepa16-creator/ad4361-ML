@@ -1,0 +1,21 @@
+def id3(data, features, target_col):
+    # Base cases
+    if len(data[target_col].unique()) == 1:
+        return data[target_col].iloc[0]
+    if len(features) == 0:
+        return data[target_col].mode().iloc[0]
+    
+    # Best feature
+    gains = {f: info_gain(data, f, target_col) for f in features}
+    best_feature = max(gains, key=gains.get)
+    
+    # Tree node as dict
+    tree = {best_feature: {}}
+    remaining_features = [f for f in features if f != best_feature]
+    
+    # Split and recurse
+    for value in data[best_feature].unique():
+        subset = data[data[best_feature] == value]
+        tree[best_feature][value] = id3(subset, remaining_features, target_col)
+    
+    return tree
